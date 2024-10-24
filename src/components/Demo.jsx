@@ -25,6 +25,10 @@ const Demo = () => {
   },[])
   const handleSubmit = async(e)=>{
     e.preventDefault();
+    if (!article.url) {
+      console.log('No URL provided'); // Add some validation or early return if the URL is empty
+      return;
+    }
       const { data } = await getSummary({ articleUrl: article.url}) 
       if (data?.summary) {
         const newArticle = {...article, summary: data.summary}
@@ -42,11 +46,15 @@ const Demo = () => {
     const updatedArticle = allArticles.filter((article)=> article.url != url);
     setAllArticles(updatedArticle)
     localStorage.setItem('articles', JSON.stringify(updatedAllArticles))
+    if (article.url === url) {
+      setArticle({ url: '', summary: '' });
+    }
   }
   const handleCopy = ( copyUrl )=>{
     setCopy(copyUrl)
     navigator.clipboard.writeText(copyUrl)
     setTimeout(() => setCopy(false), 3000);
+    
   }
 
   return (
