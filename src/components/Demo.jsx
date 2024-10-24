@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
-import { copy, linkIcon, loader, tick } from "../assets"
+import { copy, linkIcon, loader, tick, deleteicon } from "../assets"
 import { useLazyGetSummaryQuery } from '../services/articleSlice'
-
 
 
 const Demo = () => {
@@ -11,7 +10,7 @@ const Demo = () => {
   })
 
   const [allArticles, setAllArticles] = useState([])
-
+  const [copyied, setCopy] = useState("")
   const [getSummary, { error, isFetching }] = useLazyGetSummaryQuery()
 
   useEffect(()=>{
@@ -39,11 +38,21 @@ const Demo = () => {
       }
   }
 
+  const handleDelete = (url)=>{
+    const updatedArticle = allArticles.filter((article)=> article.url != url);
+    setAllArticles(updatedArticle)
+    localStorage.setItem('articles', JSON.stringify(updatedAllArticles))
+  }
+  const handleCopy = ( copyUrl )=>{
+    setCopy(copyUrl)
+    navigator.clipboard.writeText(copyUrl)
+    setTimeout(() => setCopy(false), 3000);
+  }
+
   return (
     <section className="mt-16 w-full max-w-xl">
-
       <div className="flex flex-col w-full gap-2">
-        <form action="" className="relative flex-col justify-center items-center" onSubmit={handleSubmit}>
+        <form action="" className="relative flex-col justify-center items-center " onSubmit={handleSubmit}>
           <img src={linkIcon} alt="Icon" className="absolute left-0 my-2 ml-3 w-5" />
           <input type="url" 
                  placeholder="Enter a URL"
@@ -55,7 +64,7 @@ const Demo = () => {
                  required
                  className="url_input peer"
                  />
-                 <button onClick={handleSubmit} className="submit_btn peer-focus:border-gray-700 peer-focus:text-gray-700">Submit</button>
+                 <button onClick={handleSubmit} className="submit_btn peer-focus:border-gray-700 hover:bg-amber-300 peer-focus:text-gray-700">Submit</button>
 
                  <div className="flex flex-col gap-1 max-h-60 overscroll-y-auto">
                   {
@@ -65,14 +74,19 @@ const Demo = () => {
                       className="link_card"
                       onClick={()=> setArticle(item)}
                       >
-                        <div className="copy_btn">
-                          <img src={copy}
+                        <div className="copy_btn" onClick={()=> handleCopy(item.url)}>
+                          <img src={copyied === item.url ? tick: copy}
                                alt="copy_btn"
                                className="w[40%] h-[40%] object-contain" />
                         </div>
                         <p className="flex-1 font-satoshi text-blue-700 font-medium text-sm truncate">
                           {item.url}
                         </p>
+                        <div className="copy_btn"onClick={()=>handleDelete(item.url)}>
+                          <img src={deleteicon} 
+                            alt="delete" 
+                            className="w[40%] h-[40%] object-contain"/>
+                        </div>
                       </div>
                       </>
                     ))
